@@ -84,21 +84,6 @@ const LandingPage = () => {
         </div>
 
         <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 text-center">
-          {/* Badge */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="mb-6"
-          >
-            <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium ${
-              isDark ? 'bg-primary-500/10 text-primary-400 border border-primary-500/20' : 'bg-primary-50 text-primary-600 border border-primary-200'
-            }`}>
-              <HiOutlineSparkles className="w-4 h-4" />
-              The #1 Event Management Platform
-            </span>
-          </motion.div>
-
           {/* Heading */}
           <motion.h1
             initial={{ opacity: 0, y: 30 }}

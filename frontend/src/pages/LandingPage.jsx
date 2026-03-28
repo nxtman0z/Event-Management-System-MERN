@@ -83,7 +83,7 @@ const LandingPage = () => {
           ))}
         </div>
 
-        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 text-center">
+        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 pt-20 text-center">
           {/* Heading */}
           <motion.h1
             initial={{ opacity: 0, y: 30 }}

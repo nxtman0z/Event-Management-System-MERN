@@ -25,7 +25,7 @@ const RegisterPage = () => {
     const result = await registerUser(formData);
     setIsLoading(false);
     if (result.success) {
-      navigate('/dashboard');
+      navigate('/login');
     }
   };
 

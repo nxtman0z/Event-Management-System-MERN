@@ -49,11 +49,8 @@ export const AuthProvider = ({ children }) => {
     try {
       const { data } = await authAPI.register(userData);
       if (data.success) {
-        localStorage.setItem('eventflow_token', data.data.token);
-        localStorage.setItem('eventflow_user', JSON.stringify(data.data.user));
-        setUser(data.data.user);
-        setIsAuthenticated(true);
-        toast.success('Welcome to EventFlow! 🎉');
+        // Do not auto-login after register, user should log in explicitly
+        toast.success('Registration successful! Please login. 🎉');
         return { success: true };
       }
     } catch (error) {

@@ -28,10 +28,9 @@ const Navbar = () => {
   }, [location.pathname]);
 
   const handleLogout = () => {
-    navigate('/');
-    setTimeout(() => {
-      logout();
-    }, 0);
+    logout();
+    setProfileOpen(false);
+    setIsOpen(false);
   };
 
   const navLinks = [

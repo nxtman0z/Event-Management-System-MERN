@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { authAPI } from '../utils/api';
 import toast from 'react-hot-toast';
 
@@ -16,6 +17,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const navigate = useNavigate();
 
   // Load user from token on mount
   const loadUser = useCallback(async () => {
@@ -86,6 +88,7 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     setIsAuthenticated(false);
     toast.success('Logged out successfully');
+    navigate('/');
   };
 
   // Update user data

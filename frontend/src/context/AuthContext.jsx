@@ -1,0 +1,114 @@
+import { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { authAPI } from '../utils/api';
+import toast from 'react-hot-toast';
+
+const AuthContext = createContext(null);
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
+
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Load user from token on mount
+  const loadUser = useCallback(async () => {
+    const token = localStorage.getItem('eventflow_token');
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const { data } = await authAPI.getMe();
+      if (data.success) {
+        setUser(data.data.user);
+        setIsAuthenticated(true);
+      }
+    } catch (error) {
+      console.error('Auto-login failed:', error.message);
+      localStorage.removeItem('eventflow_token');
+      localStorage.removeItem('eventflow_user');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadUser();
+  }, [loadUser]);
+
+  // Register
+  const register = async (userData) => {
+    try {
+      const { data } = await authAPI.register(userData);
+      if (data.success) {
+        localStorage.setItem('eventflow_token', data.data.token);
+        localStorage.setItem('eventflow_user', JSON.stringify(data.data.user));
+        setUser(data.data.user);
+        setIsAuthenticated(true);
+        toast.success('Welcome to EventFlow! 🎉');
+        return { success: true };
+      }
+    } catch (error) {
+      const message = error.response?.data?.message || 'Registration failed';
+      toast.error(message);
+      return { success: false, message };
+    }
+  };
+
+  // Login
+  const login = async (credentials) => {
+    try {
+      const { data } = await authAPI.login(credentials);
+      if (data.success) {
+        localStorage.setItem('eventflow_token', data.data.token);
+        localStorage.setItem('eventflow_user', JSON.stringify(data.data.user));
+        setUser(data.data.user);
+        setIsAuthenticated(true);
+        toast.success(`Welcome back, ${data.data.user.name}! 👋`);
+        return { success: true };
+      }
+    } catch (error) {
+      const message = error.response?.data?.message || 'Login failed';
+      toast.error(message);
+      return { success: false, message };
+    }
+  };
+
+  // Logout
+  const logout = () => {
+    localStorage.removeItem('eventflow_token');
+    localStorage.removeItem('eventflow_user');
+    setUser(null);
+    setIsAuthenticated(false);
+    toast.success('Logged out successfully');
+  };
+
+  // Update user data
+  const updateUser = (userData) => {
+    setUser(userData);
+    localStorage.setItem('eventflow_user', JSON.stringify(userData));
+  };
+
+  const value = {
+    user,
+    loading,
+    isAuthenticated,
+    register,
+    login,
+    logout,
+    updateUser,
+    loadUser,
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
+
+export default AuthContext;

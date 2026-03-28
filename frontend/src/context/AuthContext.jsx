@@ -83,12 +83,17 @@ export const AuthProvider = ({ children }) => {
 
   // Logout
   const logout = () => {
-    localStorage.removeItem('eventflow_token');
-    localStorage.removeItem('eventflow_user');
-    setUser(null);
-    setIsAuthenticated(false);
-    toast.success('Logged out successfully');
+    // Navigate to home first to unmount any ProtectedRoutes
     navigate('/');
+    
+    // Defer the state updates so ProtectedRoute doesn't redirect to /login
+    setTimeout(() => {
+      localStorage.removeItem('eventflow_token');
+      localStorage.removeItem('eventflow_user');
+      setUser(null);
+      setIsAuthenticated(false);
+      toast.success('Logged out successfully');
+    }, 50);
   };
 
   // Update user data

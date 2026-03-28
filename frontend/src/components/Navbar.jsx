@@ -28,8 +28,10 @@ const Navbar = () => {
   }, [location.pathname]);
 
   const handleLogout = () => {
-    logout();
     navigate('/');
+    setTimeout(() => {
+      logout();
+    }, 0);
   };
 
   const navLinks = [

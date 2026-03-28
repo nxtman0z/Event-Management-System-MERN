@@ -42,11 +42,14 @@ const DashboardPage = () => {
     .filter((r) => r.event && new Date(r.event.date) > new Date())
     .slice(0, 4);
 
-  const stats = [
+  const isOrganizer = user?.role === 'organizer' || user?.role === 'admin';
+
+  const stats = isOrganizer ? [
     { label: 'Events Created', value: myEvents.length, icon: HiOutlineCalendarDays, color: 'from-primary-500 to-primary-600' },
+    { label: 'Total Attendees', value: myEvents.reduce((acc, e) => acc + (e.registeredUsers?.length || 0), 0), icon: HiOutlineChartBar, color: 'from-amber-500 to-amber-600' },
+  ] : [
     { label: 'Registrations', value: myRegistrations.length, icon: HiOutlineTicket, color: 'from-accent-400 to-accent-500' },
     { label: 'Upcoming', value: upcomingEvents.length, icon: HiOutlineClock, color: 'from-emerald-500 to-emerald-600' },
-    { label: 'Total Attendees', value: myEvents.reduce((acc, e) => acc + (e.registeredUsers?.length || 0), 0), icon: HiOutlineChartBar, color: 'from-amber-500 to-amber-600' },
   ];
 
   return (
@@ -83,50 +86,56 @@ const DashboardPage = () => {
 
         {/* Quick Actions */}
         <div className="flex flex-wrap gap-3 mb-10">
-          {(user?.role === 'organizer' || user?.role === 'admin') && (
-            <Link to="/events/create" className="btn-primary flex items-center gap-2">
-              <HiOutlinePlusCircle className="w-5 h-5" /> Create Event
+          {isOrganizer && (
+            <>
+              <Link to="/events/create" className="btn-primary flex items-center gap-2">
+                <HiOutlinePlusCircle className="w-5 h-5" /> Create Event
+              </Link>
+              <Link to="/my-events" className="btn-secondary flex items-center gap-2">
+                Manage Events
+              </Link>
+            </>
+          )}
+          {!isOrganizer && (
+            <Link to="/my-registrations" className="btn-secondary flex items-center gap-2">
+              My Registrations
             </Link>
           )}
           <Link to="/events" className="btn-secondary flex items-center gap-2">
-            Browse Events
-          </Link>
-          <Link to="/my-registrations" className="btn-secondary flex items-center gap-2">
-            My Registrations
+            Browse All Events
           </Link>
         </div>
 
-        {/* Upcoming Registered Events */}
-        <div className="mb-10">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-              📅 Your Upcoming Events
-            </h2>
-            <Link to="/my-registrations" className={`text-sm font-semibold ${isDark ? 'text-primary-400' : 'text-primary-600'}`}>
-              View All →
-            </Link>
+        {/* Dynamic Section Based on Role */}
+        {!isOrganizer ? (
+          <div className="mb-10">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                📅 Your Upcoming Events
+              </h2>
+              <Link to="/my-registrations" className={`text-sm font-semibold ${isDark ? 'text-primary-400' : 'text-primary-600'}`}>
+                View All →
+              </Link>
+            </div>
+            {loading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {[...Array(4)].map((_, i) => <SkeletonCard key={i} />)}
+              </div>
+            ) : upcomingEvents.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {upcomingEvents.map((reg, i) => (
+                  <EventCard key={reg._id} event={reg.event} index={i} />
+                ))}
+              </div>
+            ) : (
+              <EmptyState
+                title="No upcoming events"
+                message="Browse events and register for ones you're interested in."
+                action={<Link to="/events" className="btn-primary">Browse Events</Link>}
+              />
+            )}
           </div>
-          {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[...Array(4)].map((_, i) => <SkeletonCard key={i} />)}
-            </div>
-          ) : upcomingEvents.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {upcomingEvents.map((reg, i) => (
-                <EventCard key={reg._id} event={reg.event} index={i} />
-              ))}
-            </div>
-          ) : (
-            <EmptyState
-              title="No upcoming events"
-              message="Browse events and register for ones you're interested in."
-              action={<Link to="/events" className="btn-primary">Browse Events</Link>}
-            />
-          )}
-        </div>
-
-        {/* My Created Events */}
-        {(user?.role === 'organizer' || user?.role === 'admin') && (
+        ) : (
           <div>
             <div className="flex items-center justify-between mb-6">
               <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>

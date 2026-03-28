@@ -33,16 +33,28 @@ const Navbar = () => {
     setIsOpen(false);
   };
 
+  // Navigation Links
   const navLinks = [
     { to: '/', label: 'Home' },
     { to: '/events', label: 'Events' },
   ];
 
-  const authLinks = [
-    { to: '/dashboard', label: 'Dashboard' },
-    { to: '/my-events', label: 'My Events' },
-    { to: '/my-registrations', label: 'Registrations' },
-  ];
+  // Dynamic Auth Links based on Role
+  const getAuthLinks = () => {
+    if (!isAuthenticated) return [];
+    
+    const links = [{ to: '/dashboard', label: 'Dashboard' }];
+    
+    if (user?.role === 'organizer' || user?.role === 'admin') {
+      links.push({ to: '/my-events', label: 'My Events' });
+    } else {
+      links.push({ to: '/my-registrations', label: 'My Tickets' });
+    }
+    
+    return links;
+  };
+
+  const authLinks = getAuthLinks();
 
   const isActive = (path) => location.pathname === path;
 

@@ -63,7 +63,7 @@ function App() {
             </ProtectedRoute>
           } />
           <Route path="/my-events" element={
-            <ProtectedRoute>
+            <ProtectedRoute roles={['organizer', 'admin']}>
               <PageTransition><MyEventsPage /></PageTransition>
             </ProtectedRoute>
           } />

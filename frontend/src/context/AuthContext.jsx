@@ -83,17 +83,20 @@ export const AuthProvider = ({ children }) => {
 
   // Logout
   const logout = () => {
-    // Navigate to home first to unmount any ProtectedRoutes
+    // Navigate to home first so that the route changes
     navigate('/');
     
-    // Defer the state updates so ProtectedRoute doesn't redirect to /login
+    // AnimatePresence in App.jsx keeps the previous route mounted for 300ms while animating out.
+    // If we clear the auth state immediately, the unmounting ProtectedRoute will intercept 
+    // and redirect to /login mid-animation. 
+    // Delaying the state wipe by 400ms ensures the animation completes cleanly first.
     setTimeout(() => {
       localStorage.removeItem('eventflow_token');
       localStorage.removeItem('eventflow_user');
       setUser(null);
       setIsAuthenticated(false);
       toast.success('Logged out successfully');
-    }, 50);
+    }, 400);
   };
 
   // Update user data
